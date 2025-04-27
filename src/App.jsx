@@ -8,6 +8,7 @@ function App() {
   const [gapSize, setGapSize] = useState(10);
   const [logoSize, setLogoSize] = useState(300);
   const [tagWidth, setTagWidth] = useState(500);
+  const [borderSize, setBorderSize] = useState(5);
 
   useEffect(() => {
     const handleResize = () => {
@@ -17,16 +18,19 @@ function App() {
         setGapSize(4);
         setLogoSize(150);
         setTagWidth(w - 80);
+        setBorderSize(40);
       } else if (w < 768) {
-        setCellSize(12);
-        setGapSize(6);
+        setCellSize(24);
+        setGapSize(12);
         setLogoSize(200);
         setTagWidth(400);
+        setBorderSize(30);
       } else {
         setCellSize(20);
         setGapSize(10);
         setLogoSize(300);
         setTagWidth(500);
+        setBorderSize(5);
       }
     };
     handleResize();
@@ -37,23 +41,79 @@ function App() {
   // Compute visible grid dimensions so only full circles show
   useEffect(() => {
     const computeGrid = () => {
-      const border = 20;
-      const inset = 20;
-      const gap = gapSize;
-      const cell = cellSize;
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const areaWidth = w - 2 * border - 2 * inset;
-      const areaHeight = h - 2 * border - 2 * inset;
-      let countCols = Math.floor((areaWidth + gap) / (cell + gap));
-      let countRows = Math.floor((areaHeight + gap) / (cell + gap));
-      // Reduce dot density on mobile for faster wave
+      let countCols, countRows;
       if (window.innerWidth < 768) {
-        countCols = Math.max(1, Math.floor(countCols / 2));
-        countRows = Math.max(1, Math.floor(countRows / 2));
+        // Fixed 10×20 grid on mobile
+        countCols = 10;
+        countRows = 20;
+      } else {
+        const border = 20;
+        const inset = 20;
+        const gap = gapSize;
+        const cell = cellSize;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const areaWidth = w - 2 * border - 2 * inset;
+        const areaHeight = h - 2 * border - 2 * inset;
+        countCols = Math.floor((areaWidth + gap) / (cell + gap));
+        countRows = Math.floor((areaHeight + gap) / (cell + gap));
       }
       setCols(countCols);
       setRows(countRows);
+
+      // Mobile: fast outline wave then random shimmer over 10s total
+      if (window.innerWidth < 768) {
+        const circleNodes = Array.from(document.querySelectorAll('.circle'));
+        const totalAnimTime = 10000;
+        const startDelay = 200;         // initial pause
+        const wavePhaseTime = 2000;     // 2s for the outline sweep
+        const waveDelay = Math.max(10, Math.floor(wavePhaseTime / countCols));
+
+        // Fast outline wave left-to-right
+        for (let col = 0; col < countCols; col++) {
+          setTimeout(() => {
+            for (let row = 0; row < countRows; row++) {
+              const idx = row * countCols + col;
+              const el = circleNodes[idx];
+              if (!el) continue;
+              el.style.transition = 'border-color 0.2s ease';
+              el.style.backgroundColor = 'transparent';
+              el.style.border = '4px solid rgba(0,0,0,1)';
+            }
+          }, startDelay + col * waveDelay);
+        }
+
+        // Random shimmer flicker
+        let shimmerInterval;
+        setTimeout(() => {
+          shimmerInterval = setInterval(() => {
+            circleNodes.forEach(el => {
+              const randColor = '#' +
+                Math.floor(Math.random() * 16777215)
+                  .toString(16)
+                  .padStart(6, '0');
+              el.style.transition = 'none';
+              el.style.backgroundColor = randColor;
+              el.style.border = '0';
+            });
+          }, 10);
+        }, startDelay + wavePhaseTime);
+
+        // Stop shimmer and reveal content after total animation time, with randomized fade-out and simultaneous content fade-in
+        setTimeout(() => {
+          clearInterval(shimmerInterval);
+          // Sequentially fade all dots to white, one by one at 20ms intervals
+          circleNodes.forEach((el, idx) => {
+            setTimeout(() => {
+              el.style.transition = 'background-color 0.3s ease';
+              el.style.backgroundColor = 'white';
+              el.style.border = '0';
+            }, idx * 20);
+          });
+          // Reveal logo and text after last dot fades
+          setTimeout(() => setShowContent(true), circleNodes.length * 20);
+        }, totalAnimTime);
+      }
     };
     computeGrid();
     window.addEventListener('resize', computeGrid);
@@ -110,32 +170,6 @@ function App() {
     };
   }, [cols, rows]);
 
-  useEffect(() => {
-    // Only on mobile widths
-    if (window.innerWidth >= 768) return;
-    const circleNodes = Array.from(document.querySelectorAll('.circle'));
-    // Calculate delay so wave runs ~10 seconds total
-    const totalWaveDuration = 10000; // milliseconds
-    const waveDelay = Math.max(50, Math.floor(totalWaveDuration / cols));
-    // Iterate columns left-to-right
-    for (let col = 0; col < cols; col++) {
-      setTimeout(() => {
-        for (let row = 0; row < rows; row++) {
-          const idx = row * cols + col;
-          const el = circleNodes[idx];
-          if (!el) continue;
-          el.style.transition = 'none';
-          el.style.backgroundColor = 'transparent';
-          el.style.border = '4px solid black';
-        }
-      }, col * waveDelay);
-    }
-    // After finishing wave, reveal content
-    const totalTime = cols * waveDelay + 500;
-    const timer = setTimeout(() => setShowContent(true), totalTime);
-    return () => clearTimeout(timer);
-  }, [cols, rows]);
-
   // Inline styles
   const wrapperStyle = {
     width: '100vw',
@@ -148,7 +182,7 @@ function App() {
     position: 'relative',
     overflow: 'hidden',
     boxSizing: 'border-box',
-    border: '20px solid white',
+    border: `${borderSize}px solid white`,
   };
   const logoStyle = {
     maxWidth: `${logoSize}px`,
@@ -168,10 +202,10 @@ function App() {
   };
   const gridStyle = {
     position: 'absolute',
-    top: '20px',
-    bottom: '20px',
-    left: '20px',
-    right: '20px',
+    top: '0',
+    bottom: '0',
+    left: '0',
+    right: '0',
     display: 'grid',
     gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
     gridAutoRows: `${cellSize}px`,
