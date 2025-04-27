@@ -1,164 +1,35 @@
-/* Global body styles with a smooth background transition */
-body {
-  margin: 0;
-  padding: 0;
-  background-color: rgb(0, 0, 0);
-  overflow: hidden;
-  transition: background-color 1s ease;
-}
-
-/* The wrapper fills the viewport */
+/* Full-page white background */
 .wrapper {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
 }
 
-/* Background grid of small circles */
-.grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 20px);
-  grid-auto-rows: 20px;
-  gap: 40px;
-  justify-content: center;
-  align-content: center;
+/* Show the old logo above the text */
+.wrapper::before {
+  content: "";
+  width: 200px;
+  height: 200px;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: block;
+  margin-bottom: 20px;
+  z-index: 1;
 }
 
-.circle {
-  width: 25px;
-  height: 25px;
-  background-color: transparent;
-  border: 2px solid rgba(73, 73, 71, 0.368);
-  border-radius: 50%;
-  transition: background-color 0.5s ease, border-color 0.5s ease;
-  will-change: background-color, transform;
-}
-
-/* Fade-out animation for the circles */
-@keyframes fadeOut {
-  0% {
-    border-color: rgba(73, 73, 71, 0.368);
-    background-color: rgba(251,255,0,1);
-  }
-  50% {
-    border-color: transparent;
-    background-color: rgba(251,255,0,1);
-  }
-  75% {
-    border-color: transparent;
-    background-color: rgba(255, 51, 0, 0.435);
-  }
-  100% {
-    border-color: rgba(73, 73, 71, 0.368);
-    background-color: transparent;
-  }
-}
-.circle.fade {
-  animation: fadeOut 2s forwards;
-}
-
-/* Wave effect: circles turn white on click */
-.circle.wave {
-  background-color: white !important;
-  border-color: transparent !important;
-}
-
-/* Black circle overlay: fixed 300×300, centered */
-#transition-overlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 300px;
-  height: 300px;
-  background: black;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  /* New animation to move the overlay upward 200px */
-  animation: moveUp 1s ease forwards;
-  animation-delay: 3.5s; /* Adjust delay so it occurs after the dots appear */
-}
-
-@keyframes moveUp {
-  from {
-    transform: translate(-50%, -50%);
-  }
-  to {
-    transform: translate(-50%, calc(-50% - 150px));
-  }
-}
-
-/* 7×3 grid of dots inside the overlay */
-.yellow-grid {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: grid;
-  grid-template-columns: repeat(7, 12px);
-  grid-template-rows: repeat(3, 12px);
-  gap: 12px;
-  opacity: 0;
-  animation: gridFadeIn 0.8s ease forwards;
-  animation-delay: 1s;
-}
-
-@keyframes gridFadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -40%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-}
-
-/* Each dot appears sequentially using a simple fade-in */
-.yellow-spot {
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid transparent;
-  border-radius: 50%;
-  opacity: 0;
-  animation: fadeIn 0.3s ease forwards;
-  animation-delay: calc(1s + (var(--dot-index) * 0.1s));
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Quote element: initially hidden, then fades in */
-.quote {
-  position: fixed;
-  left: 50%;
-  /* Position it below the final overlay position */
-  top: calc(50% + 180px);
-  transform: translateX(-50%);
-  opacity: 0;
-  font-size: 20px;
-  color: black;
-  animation: quoteFadeIn 1s ease forwards;
-  animation-delay: 4.5s; /* Adjust so it appears after the overlay moves up */
-}
-
-@keyframes quoteFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* Centered tagline text */
+.wrapper::after {
+  content: "mundane is a new type of robot company";
+  display: block;
+  font-size: 1.5rem;
+  color: #494947;
+  text-align: center;
+  z-index: 1;
 }

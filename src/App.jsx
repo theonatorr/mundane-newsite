@@ -1,57 +1,40 @@
 import { useEffect, useState } from 'react';
-import './App.css';
 
 function App() {
-  const [hideGrid, setHideGrid] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showContent, setShowContent] = useState(false);
+  const [cols, setCols] = useState(0);
+  const [rows, setRows] = useState(0);
 
-  const circleCount = 900; // Adjust as needed
-  const circles = Array.from({ length: circleCount });
-  // 21 dotColors for a 7×3 matrix:
-  const dotColors = [
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#000000' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#000000' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#000000', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-    { fill: '#FFFF00', outline: '#FFFF00' },
-  ];
+  // Compute visible grid dimensions so only full circles show
+  useEffect(() => {
+    const computeGrid = () => {
+      const border = 20;      // wrapper border
+      const inset = 20;       // grid inset from border
+      const gap = 10;
+      const cell = 20;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const areaWidth = w - 2 * border - 2 * inset;
+      const areaHeight = h - 2 * border - 2 * inset;
+      const countCols = Math.floor((areaWidth + gap) / (cell + gap));
+      const countRows = Math.floor((areaHeight + gap) / (cell + gap));
+      setCols(countCols);
+      setRows(countRows);
+    };
+    computeGrid();
+    window.addEventListener('resize', computeGrid);
+    return () => window.removeEventListener('resize', computeGrid);
+  }, []);
+  const circles = Array.from({ length: cols * rows });
 
   useEffect(() => {
-    if (hideGrid) return;
-
-    const fadeTimers = new WeakMap();
     const maxDistance = 220;
 
-    // Cache the circle elements
-    const circleNodes = Array.from(document.querySelectorAll('.circle'));
-
-    // Precompute positions for each circle
-    let circlePositions = circleNodes.map(circle => {
-      const rect = circle.getBoundingClientRect();
-      return {
-        element: circle,
-        centerX: rect.left + rect.width / 2,
-        centerY: rect.top + rect.height / 2,
-      };
-    });
+    let circleNodes = [];
+    let circlePositions = [];
 
     const updatePositions = () => {
+      circleNodes = Array.from(document.querySelectorAll('.circle'));
       circlePositions = circleNodes.map(circle => {
         const rect = circle.getBoundingClientRect();
         return {
@@ -61,112 +44,124 @@ function App() {
         };
       });
     };
+
+    // Initialize positions for first render
+    updatePositions();
+
     window.addEventListener('resize', updatePositions);
 
-    let animationFrameId = null;
     const handleMouseMove = (e) => {
-      if (animationFrameId) return;
-      animationFrameId = requestAnimationFrame(() => {
-        circlePositions.forEach(({ element, centerX, centerY }) => {
-          const dx = e.clientX - centerX;
-          const dy = e.clientY - centerY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const opacity = Math.max(0, 1 - distance / maxDistance);
-
-          if (opacity > 0.05) {
-            if (fadeTimers.has(element)) {
-              clearTimeout(fadeTimers.get(element));
-              fadeTimers.delete(element);
-            }
-            element.classList.remove('fade');
-            element.style.transition = 'none';
-            element.style.backgroundColor = `rgba(251,255,0,${opacity})`;
-          } else {
-            if (!fadeTimers.has(element)) {
-              fadeTimers.set(
-                element,
-                setTimeout(() => {
-                  element.style.transition = '';
-                  element.style.backgroundColor = 'rgba(251,255,0,1)';
-                  element.classList.add('fade');
-                  fadeTimers.delete(element);
-                }, 300)
-              );
-            }
-          }
-        });
-        animationFrameId = null;
-      });
-    };
-
-    const handleClick = (e) => {
       circlePositions.forEach(({ element, centerX, centerY }) => {
-        const dx = centerX - e.clientX;
-        const dy = centerY - e.clientY;
+        const dx = e.clientX - centerX;
+        const dy = e.clientY - centerY;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const delay = distance * 0.5;
+        const borderOpacity = Math.max(0, 1 - distance / maxDistance);
 
-        setTimeout(() => {
-          element.classList.add('wave');
-          setTimeout(() => {
-            element.classList.remove('wave');
-          }, 800);
-        }, delay);
+        element.style.transition = 'border-color 0.5s ease';
+        if (borderOpacity > 0) {
+          element.style.backgroundColor = 'transparent';
+          element.style.border = `4px solid rgba(0,0,0,${borderOpacity})`;
+        } else {
+          element.style.border = '0 solid black';
+          element.style.backgroundColor = 'rgb(0, 0, 0)';
+        }
       });
-
-      // After the wave effect, fade background to white and show the overlay
-      setTimeout(() => {
-        document.body.style.backgroundColor = 'white';
-        setShowOverlay(true);
-      }, 800);
-
-      // Remove the grid of circles after the animations finish (keeping the overlay visible)
-      setTimeout(() => {
-        setHideGrid(true);
-      }, 1800);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('click', handleClick);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('click', handleClick);
       window.removeEventListener('resize', updatePositions);
     };
-  }, [hideGrid]);
+  }, [cols, rows]);
+
+  // Inline styles
+  const wrapperStyle = {
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'white',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    boxSizing: 'border-box',
+    border: '20px solid white',
+  };
+  const logoStyle = {
+    maxWidth: '500px',
+    height: 'auto',
+    marginBottom: '40px',
+    zIndex: 1,
+    objectFit: 'contain'
+  };
+  const taglineStyle = {
+    fontSize: '1.5rem',
+    color: '#494947',
+    textAlign: 'left',
+    alignSelf: 'center',
+    maxWidth: '900px',
+    zIndex: 1,
+    marginTop: '20px'
+  };
+  const gridStyle = {
+    position: 'absolute',
+    top: '20px',
+    bottom: '20px',
+    left: '20px',
+    right: '20px',
+    display: 'grid',
+    gridTemplateColumns: `repeat(${cols}, 20px)`,
+    gridAutoRows: '20px',
+    gap: '10px',
+    justifyContent: 'center',
+    alignContent: 'center',
+  };
+  const circleStyle = {
+    width: '20px',
+    height: '20px',
+    backgroundColor: 'rgb(0, 0, 0)',
+    borderRadius: '50%',
+    transition: 'background-color 0.5s ease, border-color 0.5s ease',
+    boxSizing: 'border-box',
+    border: '0 solid black',
+  };
 
   return (
-    <div className="wrapper">
-      {/* Render the background grid of small circles if not hidden */}
-      {!hideGrid && (
-        <div className="grid">
-          {circles.map((_, index) => (
-            <div key={index} className="circle" />
-          ))}
-        </div>
-      )}
-
-      {/* Render the black circle overlay with the 7×3 dot matrix and the quote if overlay is shown */}
-      {showOverlay && (
+    <div style={wrapperStyle} onClick={() => setShowContent(true)}>
+      <div
+        style={{
+          ...gridStyle,
+          opacity: showContent ? 0 : 1,
+          transition: 'opacity 0.5s ease',
+        }}
+      >
+        {circles.map((_, index) => (
+          <div key={index} className="circle" style={circleStyle} />
+        ))}
+      </div>
+      {showContent && (
         <>
-          <div id="transition-overlay">
-            <div className="yellow-grid">
-              {dotColors.map(({ fill, outline }, index) => (
-                <div
-                  key={index}
-                  className="yellow-spot"
-                  style={{
-                    backgroundColor: fill,
-                    borderColor: outline,
-                    '--dot-index': index,
-                  }}
-                />
-              ))}
-            </div>
+          <img
+            src="/logo.png"
+            alt="mundane logo"
+            style={{
+              ...logoStyle,
+              opacity: showContent ? 1 : 0,
+              transition: 'opacity 1s ease',
+            }}
+          />
+          <div
+            style={{
+              ...taglineStyle,
+              opacity: showContent ? 1 : 0,
+              transition: 'opacity 1.5s ease',
+            }}
+          >
+            mundane is a new type of robot company. focussing on mundane tasks, we prioritize real world deployment over meaningless lab demos. <a href="mailto:theo@mundanesystems.com">join us today</a>
           </div>
-          <div className="quote">mundane is a new type of robot company. focussing on mundane tasks, we prioritize real world deployment over meaningless lab demos.
-            join us today</div>
         </>
       )}
     </div>
