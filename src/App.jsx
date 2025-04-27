@@ -105,6 +105,30 @@ function App() {
     };
   }, [cols, rows]);
 
+  useEffect(() => {
+    // Only on mobile widths
+    if (window.innerWidth >= 768) return;
+    const circleNodes = Array.from(document.querySelectorAll('.circle'));
+    const waveDelay = 100; // ms per column
+    // Iterate columns left-to-right
+    for (let col = 0; col < cols; col++) {
+      setTimeout(() => {
+        for (let row = 0; row < rows; row++) {
+          const idx = row * cols + col;
+          const el = circleNodes[idx];
+          if (!el) continue;
+          el.style.transition = 'none';
+          el.style.backgroundColor = 'transparent';
+          el.style.border = '4px solid black';
+        }
+      }, col * waveDelay);
+    }
+    // After finishing wave, reveal content
+    const totalTime = cols * waveDelay + 500;
+    const timer = setTimeout(() => setShowContent(true), totalTime);
+    return () => clearTimeout(timer);
+  }, [cols, rows]);
+
   // Inline styles
   const wrapperStyle = {
     width: '100vw',
