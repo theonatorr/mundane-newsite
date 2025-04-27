@@ -4,14 +4,43 @@ function App() {
   const [showContent, setShowContent] = useState(false);
   const [cols, setCols] = useState(0);
   const [rows, setRows] = useState(0);
+  const [cellSize, setCellSize] = useState(20);
+  const [gapSize, setGapSize] = useState(10);
+  const [logoSize, setLogoSize] = useState(300);
+  const [tagWidth, setTagWidth] = useState(500);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      if (w < 480) {
+        setCellSize(8);
+        setGapSize(4);
+        setLogoSize(150);
+        setTagWidth(w - 80);
+      } else if (w < 768) {
+        setCellSize(12);
+        setGapSize(6);
+        setLogoSize(200);
+        setTagWidth(400);
+      } else {
+        setCellSize(20);
+        setGapSize(10);
+        setLogoSize(300);
+        setTagWidth(500);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Compute visible grid dimensions so only full circles show
   useEffect(() => {
     const computeGrid = () => {
-      const border = 20;      // wrapper border
-      const inset = 20;       // grid inset from border
-      const gap = 10;
-      const cell = 20;
+      const border = 20;
+      const inset = 20;
+      const gap = gapSize;
+      const cell = cellSize;
       const w = window.innerWidth;
       const h = window.innerHeight;
       const areaWidth = w - 2 * border - 2 * inset;
@@ -24,7 +53,7 @@ function App() {
     computeGrid();
     window.addEventListener('resize', computeGrid);
     return () => window.removeEventListener('resize', computeGrid);
-  }, []);
+  }, [gapSize, cellSize]);
   const circles = Array.from({ length: cols * rows });
 
   useEffect(() => {
@@ -91,7 +120,7 @@ function App() {
     border: '20px solid white',
   };
   const logoStyle = {
-    maxWidth: '500px',
+    maxWidth: `${logoSize}px`,
     height: 'auto',
     marginBottom: '40px',
     zIndex: 1,
@@ -102,7 +131,7 @@ function App() {
     color: '#494947',
     textAlign: 'left',
     alignSelf: 'center',
-    maxWidth: '900px',
+    maxWidth: `${tagWidth}px`,
     zIndex: 1,
     marginTop: '20px'
   };
@@ -113,15 +142,15 @@ function App() {
     left: '20px',
     right: '20px',
     display: 'grid',
-    gridTemplateColumns: `repeat(${cols}, 20px)`,
-    gridAutoRows: '20px',
-    gap: '10px',
+    gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
+    gridAutoRows: `${cellSize}px`,
+    gap: `${gapSize}px`,
     justifyContent: 'center',
     alignContent: 'center',
   };
   const circleStyle = {
-    width: '20px',
-    height: '20px',
+    width: `${cellSize}px`,
+    height: `${cellSize}px`,
     backgroundColor: 'rgb(0, 0, 0)',
     borderRadius: '50%',
     transition: 'background-color 0.5s ease, border-color 0.5s ease',
