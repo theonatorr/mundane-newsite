@@ -45,8 +45,13 @@ function App() {
       const h = window.innerHeight;
       const areaWidth = w - 2 * border - 2 * inset;
       const areaHeight = h - 2 * border - 2 * inset;
-      const countCols = Math.floor((areaWidth + gap) / (cell + gap));
-      const countRows = Math.floor((areaHeight + gap) / (cell + gap));
+      let countCols = Math.floor((areaWidth + gap) / (cell + gap));
+      let countRows = Math.floor((areaHeight + gap) / (cell + gap));
+      // Reduce dot density on mobile for faster wave
+      if (window.innerWidth < 768) {
+        countCols = Math.max(1, Math.floor(countCols / 2));
+        countRows = Math.max(1, Math.floor(countRows / 2));
+      }
       setCols(countCols);
       setRows(countRows);
     };
@@ -109,7 +114,9 @@ function App() {
     // Only on mobile widths
     if (window.innerWidth >= 768) return;
     const circleNodes = Array.from(document.querySelectorAll('.circle'));
-    const waveDelay = 100; // ms per column
+    // Calculate delay so wave runs ~10 seconds total
+    const totalWaveDuration = 10000; // milliseconds
+    const waveDelay = Math.max(50, Math.floor(totalWaveDuration / cols));
     // Iterate columns left-to-right
     for (let col = 0; col < cols; col++) {
       setTimeout(() => {
