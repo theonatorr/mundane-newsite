@@ -254,7 +254,7 @@ function App() {
               transition: 'opacity 1.5s ease',
             }}
           >
-            mundane is a new type of robot company. focussing on mundane tasks, we prioritize real world deployment over meaningless lab demos. <a href="mailto:theo@mundanesystems.com">join us today</a>
+            mundane is a new type of robot company. focusing on mundane tasks, we prioritize real world deployment over meaningless lab demos. <a href="mailto:theo@mundanesystems.com">join us today</a>
           </div>
         </>
       )}
