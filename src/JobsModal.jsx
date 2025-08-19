@@ -96,18 +96,19 @@ const JobsModal = ({ onClose }) => {
     setSelectedJob(job);
   };
 
-  const handleApply = () => {
-    if (selectedJob) {
+  const handleApply = (job = selectedJob) => {
+    const jobToApply = job || selectedJob;
+    if (jobToApply) {
       // Use specific forms for certain jobs, general form for others
       let applyUrl = 'https://airtable.com';
       
-      if (selectedJob.id === 1) { // Software Engineer
+      if (jobToApply.id === 1) { // Software Engineer
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagufE698acYXrH0f/form';
-      } else if (selectedJob.id === 2) { // Controls Engineer
+      } else if (jobToApply.id === 2) { // Controls Engineer
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pag7sY3iibHHVyczd/form';
-      } else if (selectedJob.id === 3) { // Machine Learning Engineer
+      } else if (jobToApply.id === 3) { // Machine Learning Engineer
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagFF9UMpRc9TMV4P/form';
-      } else if (selectedJob.id === 4) { // Mechatronics Engineer Co-op
+      } else if (jobToApply.id === 4) { // Mechatronics Engineer Co-op
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagGZVBysm5UAjBii/form';
       } else { // Perception Engineer onwards (IDs 5-10) - use blank application
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagB3AhwXoOxDsDX9/form';
@@ -201,6 +202,7 @@ const JobsModal = ({ onClose }) => {
           display: 'flex',
           flexDirection: 'column',
           gap: '16px',
+          touchAction: 'manipulation',
         }}>
           {jobs.map((job) => (
             <div
@@ -213,8 +215,14 @@ const JobsModal = ({ onClose }) => {
                 boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
+                position: 'relative',
+                zIndex: 1,
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                MozUserSelect: 'none',
+                msUserSelect: 'none',
               }}
-              onClick={() => handleApply()}
+              onClick={() => handleApply(job)}
             >
               <h3 style={{ 
                 fontSize: '1.2rem', 
@@ -275,6 +283,10 @@ const JobsModal = ({ onClose }) => {
                   {job.description.substring(0, 120)}...
                 </p>
                 <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleApply(job);
+                  }}
                   style={{
                     background: '#1a1a1a',
                     color: 'white',
@@ -286,6 +298,8 @@ const JobsModal = ({ onClose }) => {
                     cursor: 'pointer',
                     marginLeft: '12px',
                     whiteSpace: 'nowrap',
+                    zIndex: 1,
+                    position: 'relative',
                   }}
                 >
                   More Info
