@@ -16,6 +16,7 @@ const JobsModal = ({ onClose }) => {
       department: "Applications",
       location: "Palo Alto, CA",
       type: "Full-time",
+      salary: "$120,000 - $300,000",
       description: "You'll build high-performance systems for real-time data streaming—spanning video pipelines, transport protocols, and network optimization. As an early SWE at mundane, you'll also work across the stack: from core infrastructure to deployment tools, owning projects end-to-end and shaping how our robots learn and scale."
     },
     {
@@ -24,6 +25,7 @@ const JobsModal = ({ onClose }) => {
       department: "Applications", 
       location: "Palo Alto, CA",
       type: "Full-time",
+      salary: "$120,000 - $250,000",
       description: "You'll design and deploy the low-latency, high-fidelity control systems that link human operators to humanoid robots. From intent estimation to torque control and haptics, you'll make teleoperation seamless, safe, and intuitive. This is a hands-on role — tuning parameters, integrating sensors, and solving problems that only appear in the real world."
     },
     {
@@ -32,6 +34,7 @@ const JobsModal = ({ onClose }) => {
       department: "Co-op Applications",
       location: "Palo Alto, CA", 
       type: "Co-op",
+      salary: "$20 - $40 / hour",
       description: "You'll develop, train, and deploy robot learning models using real-world data from our fleet. This is a hands-on role — collecting and labeling demonstrations, testing models on hardware, and iterating until they work in messy, unpredictable environments. You'll work closely with controls, hardware, and perception teams to bring ML pipelines into live deployment."
     },
     {
@@ -40,6 +43,7 @@ const JobsModal = ({ onClose }) => {
       department: "Co-op Applications",
       location: "Palo Alto, CA",
       type: "Co-op", 
+      salary: "$20 - $40 / hour",
       description: "As a Mechatronics Co-op Engineer, you'll work at the intersection of electrical, mechanical, and software systems to bring our humanoid systems to life in the real world. You will focus on integrating sensors, actuators, and embedded systems into production-ready robotic platforms, solving complex problems from to system-level debugging. Your work will directly impact the performance, safety, and reliability of robots deployed in active customer environments. You'll collaborate closely with our hardware, controls, and ML teams to design, prototype, and iterate on both individual subsystems and complete robotic assemblies. This role is highly hands-on and ideal for an engineering student with real-world robotics experience who thrives in a startup environment."
     },
     {
@@ -48,6 +52,7 @@ const JobsModal = ({ onClose }) => {
       department: "Computer Vision & Sensing",
       location: "Palo Alto, CA",
       type: "Full-time",
+      salary: "$100,000 - $200,000",
       description: "You'll design and deploy perception systems that let our robots see and understand the world. From real-time object detection to multi-sensor fusion, you'll tackle vision challenges in dynamic, cluttered environments. As an early engineer at mundane, you'll shape the core of our perception stack—balancing cutting-edge research with reliable, field-ready systems."
     },
     {
@@ -56,6 +61,7 @@ const JobsModal = ({ onClose }) => {
       department: "Motion Planning & Control",
       location: "Palo Alto, CA",
       type: "Full-time",
+      salary: "$120,000 - $250,000",
       description: "You'll develop the planning and control algorithms that make our robots move with precision and intent. Your work will span trajectory optimization, reactive control, and dexterous manipulation, all under real-world constraints. At mundane, you'll take ideas from whiteboard to deployment, ensuring our robots can operate safely and smoothly in the wild."
     },
     {
@@ -64,6 +70,7 @@ const JobsModal = ({ onClose }) => {
       department: "Real-Time Robotics",
       location: "Palo Alto, CA",
       type: "Full-time",
+      salary: "$120,000 - $200,000",
       description: "You'll build the embedded systems that serve as the nervous system of our robots. From low-level drivers to real-time communication protocols, you'll ensure our platforms remain responsive, reliable, and efficient under load. At mundane, you'll own firmware end-to-end—bringing together hardware, software, and integration to keep our robots mission-ready."
     },
     {
@@ -72,6 +79,7 @@ const JobsModal = ({ onClose }) => {
       department: "Physics & Reinforcement Learning",
       location: "Palo Alto, CA",
       type: "Full-time",
+      salary: "$150,000 - $300,000",
       description: "You'll create simulation environments that accelerate how our robots learn and adapt. From physics-based modeling to reinforcement learning pipelines, you'll design the tools that let us test, train, and validate at scale before hitting the real world. As part of mundane, you'll bridge the gap between sim and reality, making every experiment count."
     },
 
@@ -82,6 +90,7 @@ const JobsModal = ({ onClose }) => {
       department: "Applications",
       location: "Palo Alto, CA",
       type: "Full-time",
+      salary: "$150,000 - $300,000",
       description: "We're looking for a Full Stack Software Engineer to build the systems and interfaces that power our robots and the humans who operate them. You'll design and implement services that span frontend, backend, and infrastructure — everything from operator dashboards and APIs to data pipelines and deployment tooling. No prior robotics experience required — we want strong engineers who can learn quickly, thrive in ambiguous environments, and ship reliable, production-ready code."
     }
   ];
@@ -268,10 +277,19 @@ const JobsModal = ({ onClose }) => {
               <p style={{ 
                 fontSize: '0.8rem', 
                 color: '#666',
-                marginBottom: '16px',
+                marginBottom: '8px',
                 lineHeight: '1.4'
               }}>
                 {job.location}
+              </p>
+              <p style={{ 
+                fontSize: '0.8rem', 
+                color: '#2c5aa0',
+                marginBottom: '16px',
+                lineHeight: '1.4',
+                fontWeight: '600'
+              }}>
+                {job.salary}
               </p>
               <div style={{
                 display: 'flex',
@@ -482,9 +500,17 @@ const JobsModal = ({ onClose }) => {
                   <p style={{ 
                     fontSize: '0.8rem', 
                     color: '#666',
-                    margin: 0
+                    margin: '0 0 4px 0'
                   }}>
                     {job.location}
+                  </p>
+                  <p style={{ 
+                    fontSize: '0.8rem', 
+                    color: '#2c5aa0',
+                    margin: 0,
+                    fontWeight: '600'
+                  }}>
+                    {job.salary}
                   </p>
                 </div>
               ))}
@@ -556,6 +582,16 @@ const JobsModal = ({ onClose }) => {
                      fontWeight: '500'
                    }}>
                      {selectedJob.type}
+                   </span>
+                   <span style={{
+                     background: '#e8f4fd',
+                     color: '#2c5aa0',
+                     padding: '6px 12px',
+                     borderRadius: '6px',
+                     fontSize: '0.8rem',
+                     fontWeight: '600'
+                   }}>
+                     {selectedJob.salary}
                    </span>
                  </div>
                  
