@@ -47,16 +47,18 @@ function App() {
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
+      const h = window.innerHeight;
+      
       if (w < 480) {
         setCellSize(16); // Larger dots on mobile
         setGapSize(8); // Larger gaps
-        setLogoSize(150);
+        setLogoSize(Math.min(150, h * 0.2)); // Responsive logo size based on screen height
         setTagWidth(w - 80);
         setBorderSize(40);
       } else if (w < 768) {
         setCellSize(24);
         setGapSize(12);
-        setLogoSize(200);
+        setLogoSize(Math.min(200, h * 0.25)); // Responsive logo size based on screen height
         setTagWidth(400);
         setBorderSize(30);
       } else {
@@ -291,9 +293,17 @@ function App() {
     border: '0 solid black',
   };
 
+  // Calculate responsive positioning based on screen height
+  const screenHeight = window.innerHeight;
+  const isMobile = window.innerWidth < 768;
+  
+  // For mobile, use viewport height-based positioning
+  const mobileImageTop = isMobile ? Math.min(25, screenHeight * 0.25) : 40; // 25% from top on mobile, max 25vh
+  const mobileTextTop = isMobile ? Math.min(65, screenHeight * 0.65) : 40; // 65% from top on mobile, max 65vh
+  
   const fixedBgStyle = {
     position: 'fixed',
-    top: '40%', // Move image up from center
+    top: isMobile ? `${mobileImageTop}%` : '40%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: `${Math.min(900, logoSize * 1.5)}px`,
@@ -304,9 +314,9 @@ function App() {
     transition: 'opacity 1s ease'
   };
 
-  // Calculate text position based on image size
+  // Calculate text position based on image size and screen height
   const imageHeight = Math.min(900, logoSize * 1.5) * 0.6; // Approximate image height (aspect ratio)
-  const textOffset = window.innerWidth < 768 ? imageHeight * 1.5 : imageHeight * 0.7; // Much more spacing on mobile (increased from 50%)
+  const textOffset = isMobile ? Math.min(80, screenHeight * 0.15) : imageHeight * 0.7; // Responsive spacing on mobile
 
   const cornerOffset = Math.max(borderSize + gapSize * 2, 16);
 
@@ -426,27 +436,27 @@ function App() {
           <section
             style={{
               position: 'fixed',
-              top: `calc(40% + ${imageHeight/2}px + ${textOffset}px)`, // Position relative to image
+              top: isMobile ? `${mobileTextTop}%` : `calc(40% + ${imageHeight/2}px + ${textOffset}px)`,
               left: '50%',
               transform: 'translate(-50%, -50%)', // Center both horizontally and vertically
               zIndex: 1,
               textAlign: 'left',
               pointerEvents: 'none',
-              width: '80vw',
-              maxWidth: '600px',
+              width: isMobile ? '90vw' : '80vw',
+              maxWidth: isMobile ? 'none' : '600px',
               // filter: blogVisible ? 'blur(3px)' : 'blur(0px)',
               // transition: 'filter 0.3s ease',
             }}
           >
             <div
               style={{
-                fontSize: window.innerWidth < 768 ? '1.1rem' : window.innerWidth < 1024 ? '1.3rem' : '1.5rem',
+                fontSize: isMobile ? (screenHeight < 600 ? '1rem' : '1.1rem') : window.innerWidth < 1024 ? '1.3rem' : '1.5rem',
                 color: '#494947',
                 maxWidth: '100%',
                 opacity: showContent ? 1 : 0,
                 transition: 'opacity 1.5s ease',
                 lineHeight: '1.6',
-                padding: '0 20px',
+                padding: isMobile ? '0 15px' : '0 20px',
                 wordWrap: 'break-word',
                 overflowWrap: 'break-word',
                 hyphens: 'auto',
@@ -474,8 +484,8 @@ function App() {
         rel="noopener noreferrer"
         style={{
           position: 'fixed',
-          bottom: window.innerWidth < 768 ? '10px' : `${cornerOffset}px`,
-          right: window.innerWidth < 768 ? '10px' : `${cornerOffset}px`,
+          bottom: isMobile ? Math.max(10, screenHeight * 0.05) : `${cornerOffset}px`,
+          right: isMobile ? '10px' : `${cornerOffset}px`,
           opacity: showContent ? 1 : 0,
           transition: 'opacity 1.5s ease',
           textDecoration: 'none',
@@ -487,7 +497,7 @@ function App() {
           src="/logo.png"
           alt="Logo"
           style={{
-            width: window.innerWidth < 768 ? '60px' : '100px',
+            width: isMobile ? (screenHeight < 600 ? '50px' : '60px') : '100px',
             height: 'auto',
             transition: 'none',
           }}
