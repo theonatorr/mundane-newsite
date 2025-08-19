@@ -12,7 +12,7 @@ const JobsModal = ({ onClose }) => {
   const jobs = [
     {
       id: 1,
-      title: "Software Engineer",
+      title: "Software Engineer (video streaming)",
       department: "Applications",
       location: "Palo Alto, CA",
       type: "Full-time",
@@ -74,21 +74,15 @@ const JobsModal = ({ onClose }) => {
       type: "Full-time",
       description: "You'll create simulation environments that accelerate how our robots learn and adapt. From physics-based modeling to reinforcement learning pipelines, you'll design the tools that let us test, train, and validate at scale before hitting the real world. As part of mundane, you'll bridge the gap between sim and reality, making every experiment count."
     },
+
+
     {
       id: 9,
-      title: "Human–Robot Interaction Engineer",
-      department: "Interfaces & UX",
+      title: "Software Engineer (Full Stack)",
+      department: "Applications",
       location: "Palo Alto, CA",
       type: "Full-time",
-      description: "You'll design the interfaces and experiences that define how people command, teach, and collaborate with robots. From intuitive teleoperation to novel feedback and visualization systems, you'll shape the touchpoints that make robots usable and trusted. At mundane, you'll own the end-user experience—ensuring humans and robots work seamlessly side by side."
-    },
-    {
-      id: 10,
-      title: "Systems Integration Engineer",
-      department: "Robotics Platforms",
-      location: "Palo Alto, CA",
-      type: "Full-time",
-      description: "You'll integrate perception, control, and hardware into cohesive robotic platforms. That means debugging complex system interactions, testing at scale, and making sure every subsystem plays nicely together. At mundane, you'll be the glue across disciplines, ensuring our robots make the leap from prototype to reliable deployment in the field."
+      description: "We're looking for a Full Stack Software Engineer to build the systems and interfaces that power our robots and the humans who operate them. You'll design and implement services that span frontend, backend, and infrastructure — everything from operator dashboards and APIs to data pipelines and deployment tooling. No prior robotics experience required — we want strong engineers who can learn quickly, thrive in ambiguous environments, and ship reliable, production-ready code."
     }
   ];
 
@@ -102,7 +96,7 @@ const JobsModal = ({ onClose }) => {
       // Use specific forms for certain jobs, general form for others
       let applyUrl = 'https://airtable.com';
       
-      if (jobToApply.id === 1) { // Software Engineer
+      if (jobToApply.id === 1) { // Software Engineer (video streaming)
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagufE698acYXrH0f/form';
       } else if (jobToApply.id === 2) { // Controls Engineer
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pag7sY3iibHHVyczd/form';
@@ -110,11 +104,22 @@ const JobsModal = ({ onClose }) => {
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagFF9UMpRc9TMV4P/form';
       } else if (jobToApply.id === 4) { // Mechatronics Engineer Co-op
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagGZVBysm5UAjBii/form';
-      } else { // Perception Engineer onwards (IDs 5-10) - use blank application
+      } else if (jobToApply.id === 5) { // Perception Engineer
+        applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagTnXEwD8UpCcTr6/form';
+      } else if (jobToApply.id === 6) { // Robotics Engineer
+        applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagA8KA9wZ1fClyUd/form';
+      } else if (jobToApply.id === 7) { // Embedded Systems Engineer
+        applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagbmZZcPiRaaMLgk/form';
+      } else if (jobToApply.id === 8) { // Simulation Engineer
+        applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagHRSHkjjZo4mkju/form';
+      } else { // Other roles (ID 9) - use blank application
         applyUrl = 'https://airtable.com/appJtaRURYFPJILxd/pagB3AhwXoOxDsDX9/form';
       }
       
       window.open(applyUrl, '_blank');
+    } else {
+      // Fallback to blank application if no job is selected
+      window.open('https://airtable.com/appJtaRURYFPJILxd/pagB3AhwXoOxDsDX9/form', '_blank');
     }
   };
 
@@ -556,7 +561,7 @@ const JobsModal = ({ onClose }) => {
                  
                                    {/* Apply button moved above job description on mobile */}
                   <button
-                    onClick={handleApply}
+                    onClick={() => handleApply(selectedJob)}
                     style={{
                       background: '#1a1a1a',
                       color: 'white',
