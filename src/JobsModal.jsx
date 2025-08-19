@@ -212,6 +212,8 @@ const JobsModal = ({ onClose }) => {
           display: 'flex',
           flexDirection: window.innerWidth < 768 ? 'column' : 'row',
           height: window.innerWidth < 768 ? 'calc(90vh - 140px)' : 'calc(85vh - 200px)',
+          width: '100%',
+          overflow: window.innerWidth < 768 ? 'hidden' : 'visible',
         }}>
           {/* Job List */}
           <div style={{
@@ -229,6 +231,9 @@ const JobsModal = ({ onClose }) => {
               flexDirection: window.innerWidth < 768 ? 'row' : 'column', 
               gap: window.innerWidth < 768 ? '10px' : '12px',
               minWidth: window.innerWidth < 768 ? 'max-content' : 'auto',
+              justifyContent: window.innerWidth < 768 ? 'center' : 'flex-start',
+              alignItems: window.innerWidth < 768 ? 'flex-start' : 'stretch',
+              width: window.innerWidth < 768 ? '100%' : 'auto',
             }}>
               {jobs.map((job) => (
                 <div
@@ -241,7 +246,8 @@ const JobsModal = ({ onClose }) => {
                     background: selectedJob?.id === job.id ? 'rgba(26,26,26,0.05)' : 'transparent',
                     cursor: 'pointer',
                     transition: 'none',
-                    minWidth: window.innerWidth < 768 ? '260px' : 'auto',
+                    minWidth: window.innerWidth < 768 ? '240px' : 'auto',
+                    maxWidth: window.innerWidth < 768 ? '280px' : 'auto',
                     flexShrink: window.innerWidth < 768 ? 0 : 1,
                   }}
                 >
