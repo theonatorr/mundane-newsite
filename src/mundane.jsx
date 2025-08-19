@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import JobsModal from './JobsModal';
 
 function App() {
   const [showContent, setShowContent] = useState(false);
@@ -13,9 +12,6 @@ function App() {
   const [borderSize, setBorderSize] = useState(5);
   const [blogVisible, setBlogVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [showJobsModal, setShowJobsModal] = useState(false);
-  const [clickInitiated, setClickInitiated] = useState(false);
-
 
   // Remove the immediate content show - let it be click-triggered
 
@@ -48,8 +44,8 @@ function App() {
     const handleResize = () => {
       const w = window.innerWidth;
       if (w < 480) {
-        setCellSize(16); // Larger dots on mobile
-        setGapSize(8); // Larger gaps
+        setCellSize(8);
+        setGapSize(4);
         setLogoSize(150);
         setTagWidth(w - 80);
         setBorderSize(40);
@@ -95,12 +91,12 @@ function App() {
       setCols(countCols);
       setRows(countRows);
 
-      // Mobile: enhanced animation with tap interactions over 7.5s total
+      // Mobile: fast outline wave then random shimmer over 10s total
       if (window.innerWidth < 768) {
         const circleNodes = Array.from(document.querySelectorAll('.circle'));
-        const totalAnimTime = 3000; // 3 seconds total
-        const startDelay = 100;         // shorter initial pause
-        const wavePhaseTime = 1000;     // 1s for the outline sweep (faster)
+        const totalAnimTime = 10000;
+        const startDelay = 200;         // initial pause
+        const wavePhaseTime = 2000;     // 2s for the outline sweep
         const waveDelay = Math.max(10, Math.floor(wavePhaseTime / countCols));
 
         // Fast outline wave left-to-right
@@ -117,19 +113,27 @@ function App() {
           }, startDelay + col * waveDelay);
         }
 
-        // Auto-reveal content right after wave animation completes
+        // Random shimmer flicker
+        let shimmerInterval;
         setTimeout(() => {
-          // Sequentially fade all dots to white, one by one at 20ms intervals
-          circleNodes.forEach((el, idx) => {
-            setTimeout(() => {
-              el.style.transition = 'background-color 0.3s ease';
-              el.style.backgroundColor = 'white';
+          shimmerInterval = setInterval(() => {
+            circleNodes.forEach(el => {
+              const randColor = '#' +
+                Math.floor(Math.random() * 16777215)
+                  .toString(16)
+                  .padStart(6, '0');
+              el.style.transition = 'none';
+              el.style.backgroundColor = randColor;
               el.style.border = '0';
-            }, idx * 20);
-          });
-          // Reveal logo and text after last dot fades
-          setTimeout(() => setShowContent(true), circleNodes.length * 20);
-        }, startDelay + wavePhaseTime + 500); // 500ms buffer after wave completes
+            });
+          }, 10);
+        }, startDelay + wavePhaseTime);
+
+        // Stop shimmer after total animation time, but don't auto-reveal content
+        setTimeout(() => {
+          clearInterval(shimmerInterval);
+          // Keep the shimmer going until user clicks
+        }, totalAnimTime);
       } else {
         // Desktop: keep the dots visible until user clicks
         // No auto-reveal
@@ -141,70 +145,7 @@ function App() {
   }, [gapSize, cellSize]);
   const circles = Array.from({ length: cols * rows });
 
-  useEffect(() => {
-    if (showContent || clickInitiated) return; // Do not run hover effects when content is visible or click has been initiated
-    const maxDistance = 220;
-    let circleNodes = [];
-    let circlePositions = [];
-    let animationFrameId;
-    let isMouseMoving = false;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
 
-    const updatePositions = () => {
-      circleNodes = Array.from(document.querySelectorAll('.circle'));
-      circlePositions = circleNodes.map(circle => {
-        const rect = circle.getBoundingClientRect();
-        return {
-          element: circle,
-          centerX: rect.left + rect.width / 2,
-          centerY: rect.top + rect.height / 2,
-        };
-      });
-    };
-
-    // Initialize positions for first render
-    updatePositions();
-
-    window.addEventListener('resize', updatePositions);
-
-    const handleMouseMove = (e) => {
-      // Throttle mouse events
-      if (!isMouseMoving) {
-        isMouseMoving = true;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
-        
-        animationFrameId = requestAnimationFrame(() => {
-          circlePositions.forEach(({ element, centerX, centerY }) => {
-            const dx = lastMouseX - centerX;
-            const dy = lastMouseY - centerY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const borderOpacity = Math.max(0, 1 - distance / maxDistance);
-
-            if (borderOpacity > 0) {
-              element.style.backgroundColor = 'transparent';
-              element.style.border = `4px solid rgba(0,0,0,${borderOpacity})`;
-            } else {
-              element.style.border = '0 solid black';
-              element.style.backgroundColor = 'rgb(0, 0, 0)';
-            }
-          });
-          isMouseMoving = false;
-        });
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', updatePositions);
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
-  }, [cols, rows, showContent]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -220,30 +161,7 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-// Inline styles
-
-/* Jobs page hover overrides -- comment out hover-specific CSS properties */
-/*
-#jobs-root *:hover {
-  background-color: inherit !important;
-  color: inherit !important;
-}
-#jobs-root .hoverable:hover,
-#jobs-root .job-card:hover,
-#jobs-root button:hover,
-#jobs-root a:hover {
-  filter: none !important;
-  opacity: inherit !important;
-}
-#jobs-root .job-card:hover {
-  background-color: #f7f7f7 !important;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06) !important;
-}
-#jobs-root a:hover {
-  background-color: transparent !important;
-  color: inherit;
-}
-*/
+  // Inline styles
   const wrapperStyle = {
     width: '100vw',
     minHeight: '100vh',
@@ -286,7 +204,7 @@ function App() {
     height: `${cellSize}px`,
     backgroundColor: 'rgb(0, 0, 0)',
     borderRadius: '50%',
-    transition: 'background-color 0.5s ease, border-color 0.5s ease',
+    transition: 'none',
     boxSizing: 'border-box',
     border: '0 solid black',
   };
@@ -354,8 +272,9 @@ function App() {
   const handleClick = (e) => {
     if (showContent) return; // Already shown
     
-    // Set click initiated to prevent mouse movement effects from interfering
-    setClickInitiated(true);
+    // Remove the click handler immediately to prevent further clicks
+    const wrapper = e.currentTarget;
+    wrapper.onclick = null;
     
     const circleNodes = Array.from(document.querySelectorAll('.circle'));
     const clickX = e.clientX;
@@ -400,8 +319,7 @@ function App() {
         <div
           style={{
             ...gridStyle,
-            opacity: 1,
-            transition: 'opacity 0.5s ease',
+            // ensure it doesn't block clicks when visible only
             pointerEvents: 'auto',
           }}
         >
@@ -420,7 +338,22 @@ function App() {
           />
 
           {/* Fixed background logo that stays behind during scroll */}
-
+          <img
+            src="/logo.png"
+            alt="mundane logo background"
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '400px',
+              height: 'auto',
+              zIndex: -2, // Behind everything including glass surfaces
+              pointerEvents: 'none',
+              opacity: 0.1, // Very subtle background
+              filter: 'grayscale(100%)',
+            }}
+          />
 
           {/* Plain text version below the image */}
           <section
@@ -454,46 +387,45 @@ function App() {
               }}
             >
               mundane is a new type of robot company. focusing on mundane tasks, we prioritize real world deployment over meaningless lab demos.<br /><br />
-              we're scaling quickly and always looking for new cracked people to join the team - <button onClick={() => setShowJobsModal(true)} style={{background: 'none', border: 'none', color: '#0066cc', textDecoration: 'underline', cursor: 'pointer', fontSize: 'inherit', fontFamily: 'inherit', display: 'inline', padding: '0', margin: '0', lineHeight: 'inherit'}}>see open positions</button>
+              scroll for cookies
             </div>
           </section>
+
+          {/* Spacer to ensure page has height for scrolling */}
+          <div style={{ height: '150vh' }}></div>
+
+          {/* Blurred background container for blog */}
+          {/* <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 0,
+              backdropFilter: blogVisible ? 'blur(10px)' : 'blur(0px)',
+              transition: 'backdrop-filter 0.3s ease',
+              pointerEvents: 'none',
+            }}
+          /> */}
 
 
         </>
       )}
-      
-        
-        {/* Jobs Modal */}
-        {showJobsModal && (
-          <JobsModal onClose={() => setShowJobsModal(false)} />
-        )}
-        
-        <a  
-        href="https://x.com/mundanebot" 
-        target="_blank" 
-        rel="noopener noreferrer"
+      <img
+        id="corner-logo"
+        src="/logo.png"
+        alt="Logo"
         style={{
+          width: window.innerWidth < 768 ? '60px' : '100px',
+          height: 'auto',
           position: 'fixed',
           bottom: window.innerWidth < 768 ? '10px' : `${cornerOffset}px`,
           right: window.innerWidth < 768 ? '10px' : `${cornerOffset}px`,
           opacity: showContent ? 1 : 0,
-          transition: 'opacity 1.5s ease',
-          textDecoration: 'none',
-          zIndex: 10,
+          transition: 'opacity 1.5s ease'
         }}
-      >
-        <img
-          id="corner-logo"
-          src="/logo.png"
-          alt="Logo"
-          style={{
-            width: window.innerWidth < 768 ? '60px' : '100px',
-            height: 'auto',
-            transition: 'none',
-          }}
-
-        />
-      </a>
+      />
     </div>
   );
 }
